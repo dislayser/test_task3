@@ -60,18 +60,18 @@ class Database {
                     $conditionsArr = [];
                     foreach ($value as $v) {
                         if (strpos($v, '%') === 0) {
-                            $conditionsArr[] = "$key LIKE ?";
+                            $conditionsArr[] = "`$key` LIKE ?";
                         } else {
-                            $conditionsArr[] = "$key = ?";
+                            $conditionsArr[] = "`$key` = ?";
                         }
                         $bindings[] = $v;
                     }
                     $conditions[] = '(' . implode(" OR ", $conditionsArr) . ')';
                 } else {
                     if (strpos($value, '%') === 0) {
-                        $conditions[] = "$key LIKE ?";
+                        $conditions[] = "`$key` LIKE ?";
                     } else {
-                        $conditions[] = "$key = ?";
+                        $conditions[] = "`$key` = ?";
                     }
                     $bindings[] = $value;
                 }
@@ -82,26 +82,26 @@ class Database {
         return $where;
     }
 
-    //Для новой записи - возвращает ID новой записи
+    // Новая запись
     public function insert($table, $params){
         if (!empty($params)){
-            $columns = implode(", `", array_keys($params) . "`");
+            // Исправление синтаксиса для создания строки столбцов
+            $columns = "`" . implode("`, `", array_keys($params)) . "`";
             $values = implode(", ", array_fill(0, count($params), "?"));
-        
+            
             $sql = "INSERT INTO `$table` ($columns) VALUES ($values)";
             
             try {
                 $query = $this->conn->prepare($sql);
                 $query->execute(array_values($params));
                 $data = $this->conn->lastInsertId();
-
+    
                 return $data;
             } catch (PDOException $e) {
-                //При ошибки запроса, запись в логи ошибок
+                // При ошибки запроса, запись в логи ошибок
                 $this->error_log($e->getMessage(), $params);
                 return false;
             }
-
         }
     }
 
@@ -161,9 +161,8 @@ class Database {
         $this->getOffset();
         $this->getLimit();
 
-        $sql .= " ORDER BY $this->sortCol $this->orderBy";
+        $sql .= " ORDER BY `$this->sortCol` $this->orderBy";
         $sql .= " LIMIT $this->limit OFFSET $this->offset";
-        //echo $sql;
 
         $query = $this->conn->prepare($sql);
         $query->execute(array_values($params));

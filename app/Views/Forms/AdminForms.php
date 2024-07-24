@@ -1,6 +1,7 @@
 
 <?php
 function input($item){
+    // tt($item);
     global $red_star;
     global $form_data;
     global $DB;
@@ -63,82 +64,35 @@ function input($item){
     
     }
 
-    //Для тем
-    if($item['Field'] == 'theme'){
-        $select.= ' name="'.$item['Field'].'" id="'.$item['Field'].'">';
-        $select.= '<option value="">classic</option>';
-
-        $themes_dir = DIR.'public/assets/css/themes';
-        $themes_dir_files = scandir($themes_dir);
-
-        $themes = array_filter($themes_dir_files, function($item) use ($themes_dir) {
-            return is_dir($themes_dir . '/' . $item) && !in_array($item, ['.', '..']);
-        });
-        
-        foreach ($themes as $theme){
-            $selected = '';
-            if (isset($_COOKIE["theme_style"]) && $theme == $_COOKIE["theme_style"]) {
-                $selected .= 'selected';
-            } 
-            $select.= '<option value="'.$theme.'" '.$selected.'>'.$theme.'</option>';
-        }
-    }
-
     //Список для полей статус
-    if ($item['Field'] == 'id_status'){
+    if ($item['Field'] == 'id_couriers'){
         $select.= ' name="'.$item['Field'].'" id="'.$item['Field'].'">';
-        $statuses = $DB->select('device_statuses');
-        foreach ($statuses as $status){
+        $couriers = $DB->select('couriers');
+        xss($couriers);
+        foreach ($couriers as $courier){
             $selected = '';
-            if (isset($form_data['id_status']) && $status['id'] == $form_data['id_status']) {
+            if (isset($form_data['id_status']) && $status['id'] == $form_data['id_couriers']) {
                 $selected .= 'selected';
             } 
-            $select.= '<option value="'.$status['id'].'" '.$selected.'>'.$status['name'].'</option>';
+            $select.= '<option value="'.$courier['id'].'" '.$selected.'>'.$courier['name'].'</option>';
         }
     }
-    if ($item['Field'] == 'id_rule'){
-        $select.= ' name="'.$item['Field'].'" id="'.$item['Field'].'">';
-        $rules = $DB->select('users_rule');
-        foreach ($rules as $rule){
-            $selected = '';
-            if (isset($form_data['id_rule']) && $rule['id'] == $form_data['id_rule']) {
-                $selected .= 'selected';
-            } 
-            $select.= '<option value="'.$rule['id'].'" '.$selected.'>'.$rule['name'].'</option>';
-        }
-    }
-    if ($item['Field'] == 'id_user' || $item['Field'] == 'id_designer'){
-        $select.= ' name="'.$item['Field'].'" id="'.$item['Field'].'">';
-        $users = $DB->select('users');
 
-        if (isset($form_data['id_user'])) {
-            $selected_val = $form_data['id_user'];
-        }else{
-            $selected_val = $_SESSION['user']['id'];
-        }
-        
-        foreach ($users as $user){
-            $selected = '';
-            if ($user['id'] == $selected_val) {
-                $selected .= 'selected';
-            }
-            $select.= '<option value="'.$user['id'].'" '.$selected.'>'.$user['name']. ' ['.$user['login'].']' .'</option>';
-        }
-    }
-    if ($item['Field'] == 'id_client'){
+    if ($item['Field'] == 'id_regions'){
         $select.= ' name="'.$item['Field'].'" id="'.$item['Field'].'">';
-        $clients = $DB->select('clients');
+        $regions = $DB->select('regions');
+        xss($regions);
         $selected_val = 0;
-        if (isset($form_data['id_client'])) {
-            $selected_val = $form_data['id_client'];
+        if (isset($form_data['id_regions'])) {
+            $selected_val = $form_data['id_regions'];
         }
         
-        foreach ($clients as $client){
+        foreach ($regions as $region){
             $selected = '';
-            if ($client['id'] == $selected_val) {
+            if ($region['id'] == $selected_val) {
                 $selected .= 'selected';
             }
-            $select.= '<option value="'.$client['id'].'" '.$selected.'>'.$client['name']. ' ('.$client['phone'].')</option>';
+            $select.= '<option value="'.$region['id'].'" '.$selected.'>'.$region['name'].'</option>';
         }
     }
 
@@ -154,7 +108,7 @@ function input($item){
         $input = '<textarea class="form-control" name="'.$item['Field'].'" id="'.$item['Field'].'" rows="3">'.$value.'</textarea>';
     }
 
-    $fiels_select = ['id_user', 'id_designer', 'theme', 'id_client', 'id_rule'];
+    $fiels_select = ['id_couriers', 'id_regions'];
     if (in_array($item['Field'], $fiels_select)){
         return $label.$select;
     }

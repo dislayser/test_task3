@@ -1,6 +1,6 @@
 <?php
 
-$main_token_type = "admin";
+$main_token_type = "post";
 
 if (isset($_GET['table']) && !empty($_GET['table'])){
     $table_name = get('table');
